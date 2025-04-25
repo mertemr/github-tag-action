@@ -42,7 +42,7 @@ export async function getValidTags(
       }
       return matches;
     });
-    
+
     if (validTags.length === 0) {
       core.warning(`No tags match the provided pattern: ${tagSearchPattern}`);
     }

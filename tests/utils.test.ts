@@ -212,11 +212,11 @@ describe('utils', () => {
         node_id: 'string',
       },
     ];
-    
+
     const mockListTags = jest
       .spyOn(github, 'listTags')
       .mockImplementation(async () => testTags);
-    
+
     const getInputMock = jest.spyOn(core, 'getInput');
     getInputMock.mockImplementation((name) => {
       if (name === 'tag_search_pattern') {
@@ -237,8 +237,8 @@ describe('utils', () => {
     expect(validTags).toHaveLength(2);
     expect(validTags[0].name).toEqual('v1.3.0'); // Tags should be sorted, with v1.3.0 before v1.2.3
     expect(validTags[1].name).toEqual('v1.2.3');
-    expect(validTags.find(tag => tag.name === 'v2.0.1')).toBeUndefined();
-    
+    expect(validTags.find((tag) => tag.name === 'v2.0.1')).toBeUndefined();
+
     // Clean up
     getInputMock.mockRestore();
   });
