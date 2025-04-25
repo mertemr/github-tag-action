@@ -5,7 +5,7 @@ import DEFAULT_RELEASE_TYPES from '@semantic-release/commit-analyzer/lib/default
 import { compareCommits, listTags } from './github';
 import { defaultChangelogRules } from './defaults';
 import { Await } from './ts';
-import { minimatch } from 'minimatch';
+import minimatch from 'minimatch';
 
 type Tags = Await<ReturnType<typeof listTags>>;
 
