@@ -2,28 +2,18 @@ import * as core from '@actions/core';
 import { prerelease, rcompare, valid } from 'semver';
 // @ts-ignore
 import DEFAULT_RELEASE_TYPES from '@semantic-release/commit-analyzer/lib/default-release-types';
-import { compareCommits, listTags } from './github';
+import { compareCommits, Tags } from './github';
 import { defaultChangelogRules } from './defaults';
-import { Await } from './ts';
-import minimatch from 'minimatch';
 
-type Tags = Await<ReturnType<typeof listTags>>;
-
-export async function getValidTags(
-  prefixRegex: RegExp,
-  shouldFetchAllTags: boolean
-) {
-  const tags = await listTags(shouldFetchAllTags);
-  const tagSearchPattern = core.getInput('tag_search_pattern');
-
+export async function getValidTags(tags: Tags, prefixRegex: RegExp) {
   const invalidTags = tags.filter(
     (tag) =>
       !prefixRegex.test(tag.name) || !valid(tag.name.replace(prefixRegex, ''))
   );
 
-  invalidTags.forEach((name) => core.debug(`Found Invalid Tag: ${name}.`));
+  invalidTags.forEach((tag) => core.debug(`Found Invalid Tag: ${tag.name}.`));
 
-  let validTags = tags
+  const validTags = tags
     .filter(
       (tag) =>
         prefixRegex.test(tag.name) && valid(tag.name.replace(prefixRegex, ''))
@@ -31,22 +21,6 @@ export async function getValidTags(
     .sort((a, b) =>
       rcompare(a.name.replace(prefixRegex, ''), b.name.replace(prefixRegex, ''))
     );
-
-  // Apply tag_search_pattern filtering if provided
-  if (tagSearchPattern) {
-    core.info(`Filtering tags with pattern: ${tagSearchPattern}`);
-    validTags = validTags.filter((tag) => {
-      const matches = minimatch(tag.name, tagSearchPattern);
-      if (matches) {
-        core.debug(`Tag ${tag.name} matches the pattern ${tagSearchPattern}`);
-      }
-      return matches;
-    });
-
-    if (validTags.length === 0) {
-      core.warning(`No tags match the provided pattern: ${tagSearchPattern}`);
-    }
-  }
 
   validTags.forEach((tag) => core.debug(`Found Valid Tag: ${tag.name}.`));
 
